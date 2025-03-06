@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Film Subscription</title>
+
+
+    {% load static %}
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <style>
+         body {
+            background: url('static/images/body.jpg')center/cover no-repeat;
+            color: #efeff4;
+            font-weight: bolder;
+            font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+        }
+
+        .navbar {
+            margin-bottom: 30px;
+            background-color: #f42121;
+        }
+
+        .navbar-nav .nav-item {
+            margin-left: 20px;
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+          
+        }
+
+        .navbar-nav .nav-item .nav-link {
+            color: #0a0909;
+        }
+
+        .navbar-nav .nav-item .nav-link:hover {
+            color: #f3ecec;
+        }
+        
+        .container {
+            margin-top: 20px;
+        }
+
+        .film-card {
+            background-color: #b8ace8;
+            color: #040404;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            margin-bottom: 20px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .film-card img {
+            border-radius: 10px 10px 0 0;
+            max-width: 100%;
+            height: 200px; /* Adjust height as needed */
+            object-fit: cover;
+        }
+
+        .film-card-body {
+            padding: 30px;
+        }
+
+        .film-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+        }
+
+        .btn-primary {
+            background-color: #0c0b0b;
+            border: none;
+            border-radius: 30px;
+            padding: 15px;
+            font-size: 1.2rem;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #ff0f25;
+        }
+
+        .film-card h4 {
+            margin: 15px 0;
+        }
+
+.film-card p {
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .film-card img {
+        height: 150px;
+    }
+}
+    </style>
+
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <a class="navbar-brand" href="#">NAVFLIX</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'subscribe' %}">Subscribe</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'signout' %}">Logout</a>
+                </li>
+                <li class="nav-item">
+                    <span class="nav-link">Hello, {{ user.username }}</span>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h2 class="text-center mb-4">Explore Our Films</h2>
+
+        <div class="row">
+            <!-- Film 1 -->
+            <div class="col-md-4">
+                <div class="film-card">
+                    <img src="{% static 'images/jailer.jpg' %}" alt="Film 1">
+                    <div class="film-card-body">
+                        <h4>JAILER</h4>
+                        <p>Muthuvel Pandian is a retired jailer living happily with his family. The story is about how he avenges his son against the mastermind behind large-scale smuggling.</p>
+                        <a href="{% url 'subscribe' %}?film=film1" class="btn btn-primary">watch Now</a>
+                    </div>
+                </div>
+            </div>
+            <!-- Film 2 -->
+            <div class="col-md-4">
+                <div class="film-card">
+                    <img src="{% static 'images/john.jpg' %}" alt="Film 2">
+                    <div class="film-card-body">
+                        <h4>JOHN WICK</h4>
+                        <p>John Wick, the expert former assassin, seeks revenge after his prized Mustang and a keepsake from his wife are stolen, leading to a spree of destruction.</p>
+                        <a href="{% url 'subscribe' %}?film=film2" class="btn btn-primary">watch Now</a>
+                    </div>
+                </div>
+            </div>
+            <!-- Film 3 -->
+            <div class="col-md-4">
+                <div class="film-card">
+                    <img src="{% static 'images/avatar.jpg' %}" alt="Film 3">
+                    <div class="film-card-body">
+                        <h4>AVATAR</h4>
+                        <p>Years after the RDA invasion, Sully and his family face new threats as the RDA returns to capture Pandora. Sully leads a guerrilla group to protect his home.</p>
+                        <a href="{% url 'subscribe' %}?film=film3" class="btn btn-primary">watch Now</a>
+                    </div>
+                </div>
+            </div>
+            <!-- Film 4 -->
+            <div class="col-md-4">
+                <div class="film-card">
+                    <img src="{% static 'images/inception.jpg' %}" alt="Film 4">
+                    <div class="film-card-body">
+                        <h4>INCEPTION</h4>
+                        <p>A skilled thief, the absolute best in the dangerous art of extraction, is offered a chance to have his criminal history erased as payment for implanting another person's idea into a target's subconscious.</p>
+                        <a href="{% url 'subscribe' %}?film=film4" class="btn btn-primary">watch Now</a>
+                    </div>
+                </div>
+            </div>
+            <!-- Film 5 -->
+            <div class="col-md-4">
+                <div class="film-card">
+                    <img src="{% static 'images/inter.jpeg' %}" alt="Film 5">
+                    <div class="film-card-body">
+                        <h4>INTERSTELLAR</h4>
+                        <p>When Earth becomes uninhabitable, a team of explorers travels through a wormhole in search of a new home for humanity, discovering the wonders of the universe along the way.</p>
+                        <a href="{% url 'subscribe' %}?film=film5" class="btn btn-primary">watch Now</a>
+                    </div>
+                </div>
+            </div>
+            <!-- Film 6 -->
+            <div class="col-md-4">
+                <div class="film-card">
+                    <img src="{% static 'images/leo1.jpg' %}" alt="Film 4">
+                    <div class="film-card-body">
+                        <h4>LEO</h4>
+                        <p>A mild-mannered man becomes a local hero through an act of violence, but it brings forth consequences with connection to a dangerous world, one which will shake his carefully constructed life to its very core.</p>
+                        <a href="{% url 'subscribe' %}?film=film4" class="btn btn-primary">watch Now</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Film 7 -->
+            <div class="col-md-4">
+                <div class="film-card">
+                    <img src="{% static 'images/dun.jpg' %}" alt="Film 6">
+                    <div class="film-card-body">
+                        <h4>DUNKIRK</h4>
+                        <p>During World War II, Allied soldiers from Belgium, the British Empire, and France are surrounded by the German Army and evacuated during a fierce battle.</p>
+                        <a href="{% url 'subscribe' %}?film=film6" class="btn btn-primary">watch Now</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Film 8 -->
+
+            <div class="col-md-4">
+                <div class="film-card">
+                    <img src="{% static 'images/Kalki-2898-AD-1.jpg' %}" alt="Film 2">
+                    <div class="film-card-body">
+                        <h4>Kalki-2898-AD-1</h4>
+                        <p>During the Kurukshetra war Ashwatthama is cursed by lord Krishna to attain immortality and witness humanity during Kalyug.His redemption can occur by protecting mother of Kalki the last reincarnation of Lord Vishnu.</p>
+                        <a href="{% url 'subscribe' %}?film=film2" class="btn btn-primary">watch Now</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Film 9 -->
+
+            <div class="col-md-4">
+                <div class="film-card">
+                    <img src="{% static 'images/neru.jpg' %}" alt="Film 2">
+                    <div class="film-card-body">
+                        <h4>NERU</h4>
+                        <p>Sara, A blind girl is sexually harassed by an intruder. Her Family seeks help from Vijaya Mohan, A lawyer who hasn't practiced for years. With Her resilience and Vijaya Mohan's intelligence, they try to find justice in The Indian Legal System.</p>
+                        <a href="{% url 'subscribe' %}?film=film2" class="btn btn-primary">watch Now</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Film 10 -->
+
+            <div class="col-md-4">
+                <div class="film-card">
+                    <img src="{% static 'images/kannur.jpeg' %}" alt="Film 2">
+                    <div class="film-card-body">
+                        <h4>KANNUR SQUAD</h4>
+                        <p>The gripping saga of a police officer and his team, their challenging journey to nab a criminal gang across the country. Further, it shows how he leads his team towards triumph, amidst professional uncertainties in this gripping drama.</p>
+                        <a href="{% url 'subscribe' %}?film=film2" class="btn btn-primary">watch Now</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Film 11 -->
+
+            <div class="col-md-4">
+                <div class="film-card">
+                    <img src="{% static 'images/2018.jpg' %}" alt="Film 2">
+                    <div class="film-card-body">
+                        <h4>2018</h4>
+                        <p>The story takes place in Kerala during the 2018 deluge where life came to a standstill due to floods.A TV reporter Noora reporting on scarcity of water in Pondicherry,when one of the villagers Sethupathi hits her car on purpose for parking in between.</p>
+                        <a href="{% url 'subscribe' %}?film=film2" class="btn btn-primary">watch Now</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Film 12 -->
+
+            <div class="col-md-4">
+                <div class="film-card">
+                    <img src="{% static 'images/maharaja.jpg' %}" alt="Film 2">
+                    <div class="film-card-body">
+                        <h4>MAHARAJA</h4>
+                        <p>A simple and soft spoken barber in a small town reports the theft of Lakshmi ( his dustbin) to the police. Initially they are angry and amused and take it lightly but when he keeps insisting they start an investigation which throws up a number of suspects.</p>
+                        <a href="{% url 'subscribe' %}?film=film2" class="btn btn-primary">watch Now</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Film 13 -->
+
+            <div class="col-md-4">
+                <div class="film-card">
+                    <img src="{% static 'images/avesham.jpg' %}" alt="Film 2">
+                    <div class="film-card-body">
+                        <h4>AVESHAM</h4>
+                        <p>A gangster boss often makes merry with his goons at the liquor bar when not involved in fights with locals over some issues. He becomes protective of three students of the local college who approach him for help as they are being troubled by their college seniors.</p>
+                        <a href="{% url 'subscribe' %}?film=film2" class="btn btn-primary">watch Now</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Film 14 -->
+            <div class="col-md-4">
+                <div class="film-card">
+                    <img src="{% static 'images/12.jpg' %}" alt="Film 2">
+                    <div class="film-card-body">
+                        <h4>12th FAIL</h4>
+                        <p>Manoj Kumar Sharma belongs to Chambal village where cheating in exam is a common thing. He is appearing for his 12th standard exams and eyeing a peon's job. But a strict police officer DSP Dushyant Singh arrives during the exams and stops the cheating process, Manoj is unable to pass the examinations and starts to ride a passenger vehicle with brother Kamlesh.</p>
+                        <a href="{% url 'subscribe' %}?film=film2" class="btn btn-primary">watch Now</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Film 15 -->
+
+            <div class="col-md-4">
+                <div class="film-card">
+                    <img src="{% static 'images/dead.jpg' %}" alt="Film 2">
+                    <div class="film-card-body">
+                        <h4>DEAD POOL</h4>
+                        <p>This is the origin story of former Special Forces operative turned mercenary Wade Wilson, who after being subjected to a rogue experiment that leaves him with accelerated healing powers, adopts the alter ego Deadpool. Armed with his new abilities and a dark, twisted sense of humor, Deadpool hunts down the man who nearly destroyed his life.</p>
+                        <a href="{% url 'subscribe' %}?film=film2" class="btn btn-primary">watch Now</a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies (optional) -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+</body>
+</html>

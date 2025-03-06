@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IMDb API Fetch</title>
+</head>
+<body>
+    <h1>IMDb API Fetch Example</h1>
+    
+    <!-- Your HTML content goes here -->
+
+    <script>
+        async function fetchData() {
+            const url = 'd1efe6b699msh80b49c9ea99ade8p188c18jsn1732a70de7ee';
+            const options = {
+                method: 'GET',
+                headers: {
+                    'X-RapidAPI-Key': 'e44bb87485mshd2fa25e3e52a15ep19dbfcjsnc3e659e395b3',
+                    'X-RapidAPI-Host': 'imdb146.p.rapidapi.com'
+                }
+            };
+
+            try {
+                const response = await fetch(url, options);
+                const result = await response.text();
+                console.log(result);
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        // Call the fetchData function
+        fetchData();
+    </script>
+</body>
+</html>

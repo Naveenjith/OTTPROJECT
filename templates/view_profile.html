@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <!-- Add Bootstrap CSS link -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            padding-top: 80px; /* Adjusted for navbar height */
+            background-color: #bcb9b9; /* Updated background color */
+            font-family: 'Arial', sans-serif;
+        }
+        .user-details {
+            max-width: 400px;
+            margin: 0 auto;
+            background: linear-gradient(to right, #ff0000, #6610F2) ;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #121212;
+        }
+        p {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #0d0d0d;
+        }
+        .change-password-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .change-password-link a {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #ff0000;
+            color: #beb8b8;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .change-password-link a:hover {
+            background-color: #0056b3;
+        }
+        .profile-image-container {
+            width: 150px;
+            height: 150px;
+            overflow: hidden;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+        }
+        .profile-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+        .btn-primary {
+            background: linear-gradient(to right, #ff0000, #6610F2);
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(to right, #b31800, #4d0c8a);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top" style="background: linear-gradient(to right, #ff0000, #6610F2) !important;">
+        <div class="container">
+            <a class="navbar-brand" href="#">User Profile</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'movie_list' %}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="https://www.imdb.com/">IMDB</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="https://www.youtube.com/">Trailers</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'signout' %}">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container mt-5">
+        <div class="user-details">
+            <div class="profile-image-container">
+                {% if user.image %}
+                    <img src="{{ user.image.url }}" alt="Profile Image" class="profile-image">
+                {% else %}
+                    <p class="no-image">No profile image </p>
+                {% endif %}
+            </div>
+            <p><strong>Username:</strong> {{ user.user.username }}</p>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+            <p><strong>Phone Number:</strong> {{ user.phone_number }}</p>
+            <div class="change-password-link">
+                <a href="{% url 'change_password' %}">Change Password</a>
+            <a  href="{% url 'edit_user_profile' %}">Editprofile</a>
+            </div>
+        </div>
+    </div>
+    <!-- Add Bootstrap JS scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

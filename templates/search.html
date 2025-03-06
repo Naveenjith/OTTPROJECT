@@ -1,0 +1,76 @@
+<!-- search.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Search</title>
+</head>
+<body>
+    <h1>Movie Search</h1>
+    <div class="row">
+        <div class="col-sm-6 bg-light mt-4">
+            <form class="form-inline my-2 my-lg-0">
+                <input class="form-control mr-sm-2" type="text" id="search-input" placeholder="Search">
+           </form>
+            <div id="results-body"></div>
+
+             
+            </tbody>
+        </table>
+    </div>
+    <script  src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script>
+ $(document).ready(function(){
+        $('#search-input').on('input',function(){
+            var query = $(this).val();
+            searchByName(query);
+        });
+        function searchByName(query){
+            $.ajax({
+                method:'GET',
+                url:'/search2/',
+                data:{data:query},
+                
+                success:function(data){
+                console.log(data)
+                   displayResults(data.data);
+                },
+            });
+        }
+        function displayResults(results) {
+    var resultsContainer = $('#results-body');
+    resultsContainer.empty();
+
+    if (results.length === 0) {
+        resultsContainer.append('<div class="no-results">NO Results found.</div>');
+    } else {
+        results.forEach(function(result, index) {
+            var thumbnailHtml = '<img src="' + result.thumbnail_url + '" alt="' + result.title + '" class="thumbnail-img">';
+            var resultBoxHtml = '<div class="result-box" data-video-url="' + result.video_url + '">' +
+                '<p><strong>' + result.title + '</strong></p>' +
+                '<div class="thumbnail-container">' + thumbnailHtml + '</div>' +
+                '<p><strong>Language:</strong> ' + result.language + '</p>' +
+                '<p><strong>Description:</strong> ' + result.description + '</p>' +
+                '<p><strong>Release Date:</strong> ' + result.release_date + '</p>' +
+                '</div>';
+            resultsContainer.append(resultBoxHtml);
+        });
+    }
+
+    // Event listener for playing video when the box is clicked
+    $('.result-box').click(function() {
+        var videoUrl = $(this).data('video-url');
+        if (videoUrl) {
+            var videoElement = $('<video controls autoplay><source src="' + videoUrl + '" type="video/mp4">Your browser does not support the video tag.</video>');
+            $(this).empty().append(videoElement);
+        }
+    });
+}
+
+    });
+    </script>
+ 
+</body>
+</html>

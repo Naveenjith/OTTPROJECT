@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subscribe</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <style>
+        /* Background Image */
+        
+        body {
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        
+
+        .navbar {
+            background-color: rgba(239, 186, 186, 0.8);
+            width: 100%;
+        }
+
+        .plan-container {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            width: 80%;
+        }
+
+        .plan {
+            background-color: rgba(137, 240, 245, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+            flex: 0 1 30%; /* Allows 3 plans per row */
+            margin-bottom: 20px;
+        }
+
+        .plan h2 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        .plan p {
+            font-size: 1rem;
+        }
+
+        h1, h3 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        form {
+            background-color: rgba(237, 146, 146, 0.9);
+            padding: 30px;
+            border-radius: 10px;
+            width: 80%;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <span class="navbar-text mr-auto">Welcome, {{ user.username }}</span>
+            <a href="{% url 'signout' %}" class="btn btn-danger ml-auto">Logout</a>
+        </div>
+    </nav>
+    
+    <h1>Choose a Subscription Plan</h1>
+
+    <div class="plan-container">
+        <!-- Basic Plan -->
+        <div class="plan">
+            <h2>Basic Plan</h2>
+            <p>Price: $150</p>
+            <p>Features: Access to All content for 1 month</p>
+        </div>
+
+        <!-- Standard Plan -->
+        <div class="plan">
+            <h2>Standard Plan</h2>
+            <p>Price: $300</p>
+            <p>Features: Access to All content for 3 months </p>
+        </div>
+
+        <!-- Premium Plan -->
+        <div class="plan">
+            <h2>Premium Plan</h2>
+            <p>Price: $550</p>
+            <p>Features: Access to all content for 6 months</p>
+        </div>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        <h3>Select Your Plan</h3>
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Proceed to Payment</button>
+    </form>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+</body>
+</html>
