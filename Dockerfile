@@ -16,11 +16,13 @@ RUN apt-get update && apt-get install -y \
     pkg-config \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-
 # Install Python dependencies
 COPY requirements.txt .
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
+
+# ✅ Just to make sure gunicorn is installed
+RUN pip install gunicorn
 
 # Copy project files into container
 COPY . .
