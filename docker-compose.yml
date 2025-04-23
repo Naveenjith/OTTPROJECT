@@ -1,0 +1,29 @@
+services:
+  db:
+    image: mysql:8
+    restart: always
+    environment:
+      MYSQL_DATABASE: ottdata
+      MYSQL_ROOT_PASSWORD: navi@123
+    ports:
+      - "3306:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+
+  web:
+    build: .
+    command: gunicorn OTTPROJECT.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - .:/app
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      DB_NAME: ottdata
+      DB_USER: root
+      DB_PASSWORD: navi@123
+      DB_HOST: db
+      DB_PORT: 3306
