@@ -13,7 +13,9 @@ RUN apt-get update && apt-get install -y \
     default-libmysqlclient-dev \
     gcc \
     netcat-openbsd \
+    pkg-config \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
+
 
 # Install Python dependencies
 COPY requirements.txt .
