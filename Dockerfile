@@ -1,10 +1,9 @@
 # Use official Python base image
 FROM python:3.12-slim
 
-
 # Set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
 # Set working directory
 WORKDIR /app
@@ -13,8 +12,8 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     default-libmysqlclient-dev \
     gcc \
-    netcat \
-    && apt-get clean
+    netcat-openbsd \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
 COPY requirements.txt .
