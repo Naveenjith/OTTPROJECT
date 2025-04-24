@@ -4,7 +4,7 @@ from .views import SignupView,SigninView,SignoutView,IndexView,MovieListView,Sea
 
 urlpatterns = [
     path('signup/',SignupView.as_view(), name='signup'),
-     path('',SigninView.as_view(), name='signin'),
+     path('signin/',SigninView.as_view(), name='signin'),
      path('signout/',SignoutView.as_view(), name='signout'),
      path('change_password/', views.change_password, name='change_password'),
      path('index/',IndexView.as_view(), name='index'),
