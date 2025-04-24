@@ -3,12 +3,12 @@ from . import views
 from .views import SignupView,SigninView,SignoutView,IndexView,MovieListView,SearchView2
 
 urlpatterns = [
+    path('',SigninView.as_view(), name='signin'),
     path('signup/',SignupView.as_view(), name='signup'),
-     path('signin/',SigninView.as_view(), name='signin'),
-     path('signout/',SignoutView.as_view(), name='signout'),
-     path('change_password/', views.change_password, name='change_password'),
-     path('index/',IndexView.as_view(), name='index'),
-     path('subscribe/', views.subscribe, name='subscribe'),
+    path('signout/',SignoutView.as_view(), name='signout'),
+    path('change_password/', views.change_password, name='change_password'),
+    path('index/',IndexView.as_view(), name='index'),
+    path('subscribe/', views.subscribe, name='subscribe'),
     path('movie_list/',MovieListView.as_view(), name='movie_list'),
     path('movie_tamil/',views.movie_tamil, name='movie_tamil'),
     path('movie_malayalam/',views.movie_malayalam, name='movie_malayalam'),
