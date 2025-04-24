@@ -79,17 +79,15 @@ LOGIN_URL = '/'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-SECRET_KEY = os.getenv('SECRET_KEY')
-DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
-        'HOST': os.getenv('DB_HOST', 'db'),
-        'PORT': os.getenv('DB_PORT', '3306'),
+        'NAME': os.getenv('DB_NAME', 'ottdata'),  # Default fallback
+        'USER': os.getenv('DB_USER', 'root'),  # Default fallback
+        'PASSWORD': os.getenv('DB_PASSWORD', 'navi@123'),  # Default fallback
+        'HOST': os.getenv('DB_HOST', '127.0.0.1'),  # Default to localhost if not set
+        'PORT': os.getenv('DB_PORT', '3306'),  # Default MySQL port
     }
 }
 

@@ -23,8 +23,6 @@ staticfiles/
 # VS Code
 .vscode/
 
-# Environment Variables
-.env
 
 # macOS
 .DS_Store
