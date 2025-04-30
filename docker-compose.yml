@@ -2,6 +2,7 @@ version: '3.9'
 
 services:
   db:
+    container_name: ott_mysql
     image: mysql:8
     restart: always
     environment:
@@ -13,6 +14,7 @@ services:
       - dbdata:/var/lib/mysql
 
   web:
+    container_name: ott_web
     build: .
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
@@ -31,6 +33,7 @@ services:
       DB_PORT: 3306
 
   phpmyadmin:
+    container_name: ott_phpmyadmin
     image: phpmyadmin
     restart: always
     ports:
