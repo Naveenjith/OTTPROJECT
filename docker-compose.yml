@@ -29,3 +29,20 @@ services:
       DB_PASSWORD: navi@123
       DB_HOST: db
       DB_PORT: 3306
+
+  phpmyadmin:
+    image: phpmyadmin
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: navi@123
+    depends_on:
+      - db
+
+volumes:
+  dbdata:
+  static_volume:
+  media_volume:
