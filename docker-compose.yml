@@ -15,7 +15,7 @@ services:
       DB_NAME: default
       DB_USER: mysql
       DB_PASSWORD: fP5OgBVmT3MDPQthaUddpinFnE4QM4WkcsuPKeUt2b2eyAYN9Omh4osqZJLleXoj
-      DB_HOST: v0s0408k4gsos8w0os4kwo80
+      DB_HOST: v0s0408k4gsos8w0os4kwo80  # Internal Coolify hostname
       DB_PORT: 3306
 
   phpmyadmin:
@@ -23,12 +23,28 @@ services:
     image: phpmyadmin
     restart: always
     ports:
-      - "8080:80"
+      - "8080:80"  # Exposes phpMyAdmin to port 8080, internal to Docker
     environment:
-      PMA_HOST: v0s0408k4gsos8w0os4kwo80
+      PMA_HOST: v0s0408k4gsos8w0os4kwo80  # Internal Coolify hostname
       PMA_PORT: 3306
       MYSQL_ROOT_PASSWORD: fP5OgBVmT3MDPQthaUddpinFnE4QM4WkcsuPKeUt2b2eyAYN9Omh4osqZJLleXoj
+    depends_on:
+      - db
+
+  # Optional database service for development purposes
+  db:
+    container_name: ott_mysql
+    image: mysql:8
+    restart: always
+    environment:
+      MYSQL_DATABASE: ottdata
+      MYSQL_ROOT_PASSWORD: fP5OgBVmT3MDPQthaUddpinFnE4QM4WkcsuPKeUt2b2eyAYN9Omh4osqZJLleXoj
+    ports:
+      - "3306:3306"  # Optional, if you want MySQL to be exposed on your local machine
+    volumes:
+      - dbdata:/var/lib/mysql
 
 volumes:
+  dbdata:
   static_volume:
   media_volume:
