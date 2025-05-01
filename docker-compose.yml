@@ -1,14 +1,30 @@
-version: '3.9'
+version: "3.9"
 
 services:
+  # MySQL Service
+  db:
+    image: mysql:8.0
+    container_name: ott_mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: ottdata
+      MYSQL_USER: root
+      MYSQL_PASSWORD: fP5OgBVmT3MDPQthaUddpinFnE4QM4WkcsuPKeUt2b2eyAYN9Omh4osqZJLleXoj
+      MYSQL_ROOT_PASSWORD: fP5OgBVmT3MDPQthaUddpinFnE4QM4WkcsuPKeUt2b2eyAYN9Omh4osqZJLleXoj
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - mynetwork
+
+  # Web Service (Django app)
   web:
-    container_name: ott_web
     build: .
+    container_name: ott_web
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/app
-      - static_volume:/app/staticfiles
-      - media_volume:/app/media
     ports:
       - "8000:8000"
     environment:
@@ -19,37 +35,30 @@ services:
       DB_PORT: 3306
     depends_on:
       - db
+    networks:
+      - mynetwork
 
-  db:
-    container_name: ott_mysql
-    image: mysql:8
-    restart: always
-    environment:
-      MYSQL_DATABASE: ottdata
-      MYSQL_ROOT_PASSWORD: fP5OgBVmT3MDPQthaUddpinFnE4QM4WkcsuPKeUt2b2eyAYN9Omh4osqZJLleXoj
-    volumes:
-      - dbdata:/var/lib/mysql
-    # Optional: expose only if external DB access is needed
-    # ports:
-    #   - "3306:3306"
-
+  # phpMyAdmin Service
   phpmyadmin:
+    image: phpmyadmin/phpmyadmin
     container_name: ott_phpmyadmin
-    image: phpmyadmin/phpmyadmin  # Use official phpMyAdmin image
     restart: always
-    ports:
-      - "8081:80"
     environment:
       PMA_HOST: db
       PMA_PORT: 3306
-      PMA_ARBITRARY: 1
-      MYSQL_ROOT_PASSWORD: fP5OgBVmT3MDPQthaUddpinFnE4QM4WkcsuPKeUt2b2eyAYN9Omh4osqZJLleXoj
-      # Optional: update if accessed via domain (or remove)
-      # PMA_ABSOLUTE_URI: https://phpmyadmin.ottplatform.shijin.in
+      PMA_USER: root
+      PMA_PASSWORD: fP5OgBVmT3MDPQthaUddpinFnE4QM4WkcsuPKeUt2b2eyAYN9Omh4osqZJLleXoj
+    ports:
+      - "8080:80"  # Can reverse proxy to https://db.ottplatform.shijin.in
     depends_on:
       - db
+    networks:
+      - mynetwork
 
 volumes:
-  dbdata:
-  static_volume:
-  media_volume:
+  mysql_data:
+
+networks:
+  mynetwork:
+    driver: bridge
+
