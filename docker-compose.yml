@@ -15,7 +15,7 @@ services:
       DB_NAME: ottdata
       DB_USER: root
       DB_PASSWORD: fP5OgBVmT3MDPQthaUddpinFnE4QM4WkcsuPKeUt2b2eyAYN9Omh4osqZJLleXoj
-      DB_HOST: db.ottplatform.shijin.in  # <-- Updated to the external domain
+      DB_HOST: db  # Internal Docker service name for MySQL
       DB_PORT: 3306
     depends_on:
       - db
@@ -46,6 +46,7 @@ services:
       PMA_ABSOLUTE_URI: https://db.ottplatform.shijin.in  # External URL to access phpMyAdmin
     depends_on:
       - db
+
 volumes:
   dbdata:
   static_volume:
