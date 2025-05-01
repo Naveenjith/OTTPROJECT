@@ -39,14 +39,13 @@ services:
     ports:
       - "8081:80"  # Changed from 8080 to avoid port conflict
     environment:
-      PMA_HOST: db.ottplatform.shijin.in  # <-- Use the external domain here
+      PMA_HOST: db  # Internal Docker service name, not external domain
       PMA_PORT: 3306
       PMA_ARBITRARY: 1
       MYSQL_ROOT_PASSWORD: fP5OgBVmT3MDPQthaUddpinFnE4QM4WkcsuPKeUt2b2eyAYN9Omh4osqZJLleXoj
-      PMA_ABSOLUTE_URI: https://db.ottplatform.shijin.in
+      PMA_ABSOLUTE_URI: https://db.ottplatform.shijin.in  # External URL to access phpMyAdmin
     depends_on:
       - db
-
 volumes:
   dbdata:
   static_volume:
