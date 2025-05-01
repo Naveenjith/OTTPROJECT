@@ -12,26 +12,14 @@ services:
     ports:
       - "8000:8000"
     environment:
-      DB_NAME: default
-      DB_USER: mysql
+      DB_NAME: ottdata
+      DB_USER: root
       DB_PASSWORD: fP5OgBVmT3MDPQthaUddpinFnE4QM4WkcsuPKeUt2b2eyAYN9Omh4osqZJLleXoj
-      DB_HOST: v0s0408k4gsos8w0os4kwo80  # Ensure this is the correct internal Coolify hostname
+      DB_HOST: db
       DB_PORT: 3306
-
-  phpmyadmin:
-    container_name: ott_phpmyadmin
-    image: phpmyadmin
-    restart: always
-    ports:
-      - "8081:80"  # Exposes phpMyAdmin to port 8080, internal to Docker
-    environment:
-      PMA_HOST: v0s0408k4gsos8w0os4kwo80  # Use internal hostname here
-      PMA_PORT: 3306
-      MYSQL_ROOT_PASSWORD: fP5OgBVmT3MDPQthaUddpinFnE4QM4WkcsuPKeUt2b2eyAYN9Omh4osqZJLleXoj
     depends_on:
       - db
 
-  # Optional database service for development purposes
   db:
     container_name: ott_mysql
     image: mysql:8
@@ -40,9 +28,24 @@ services:
       MYSQL_DATABASE: ottdata
       MYSQL_ROOT_PASSWORD: fP5OgBVmT3MDPQthaUddpinFnE4QM4WkcsuPKeUt2b2eyAYN9Omh4osqZJLleXoj
     ports:
-      - "3306:3306"  # Optional, if you want MySQL to be exposed on your local machine
+      - "3306:3306"
     volumes:
       - dbdata:/var/lib/mysql
+
+  phpmyadmin:
+    container_name: ott_phpmyadmin
+    image: phpmyadmin
+    restart: always
+    ports:
+      - "8081:80"  # Changed from 8080 to avoid port conflict
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+      MYSQL_ROOT_PASSWORD: fP5OgBVmT3MDPQthaUddpinFnE4QM4WkcsuPKeUt2b2eyAYN9Omh4osqZJLleXoj
+      PMA_ABSOLUTE_URI: https://db.ottplatform.shijin.in
+    depends_on:
+      - db
 
 volumes:
   dbdata:
