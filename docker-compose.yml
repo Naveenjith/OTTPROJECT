@@ -44,7 +44,7 @@ services:
     container_name: ott_phpmyadmin
     restart: always
     environment:
-      PMA_HOST: db
+      PMA_HOST: v0s0408k4gsos8w0os4kwo80
       PMA_PORT: 3306
       PMA_USER: root
       PMA_PASSWORD: fP5OgBVmT3MDPQthaUddpinFnE4QM4WkcsuPKeUt2b2eyAYN9Omh4osqZJLleXoj
