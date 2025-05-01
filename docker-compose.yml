@@ -1,18 +1,6 @@
 version: '3.9'
 
 services:
-  db:
-    container_name: ott_mysql
-    image: mysql:8
-    restart: always
-    environment:
-      MYSQL_DATABASE: ottdata
-      MYSQL_ROOT_PASSWORD: navi@123
-    ports:
-      - "3306:3306"
-    volumes:
-      - dbdata:/var/lib/mysql
-
   web:
     container_name: ott_web
     build: .
@@ -23,13 +11,11 @@ services:
       - media_volume:/app/media
     ports:
       - "8000:8000"
-    depends_on:
-      - db
     environment:
-      DB_NAME: ottdata
-      DB_USER: root
-      DB_PASSWORD: navi@123
-      DB_HOST: db
+      DB_NAME: default
+      DB_USER: mysql
+      DB_PASSWORD: fP5OgBVmT3MDPQthaUddpinFnE4QM4WkcsuPKeUt2b2eyAYN9Omh4osqZJLleXoj
+      DB_HOST: v0s0408k4gsos8w0os4kwo80
       DB_PORT: 3306
 
   phpmyadmin:
@@ -39,13 +25,10 @@ services:
     ports:
       - "8080:80"
     environment:
-      PMA_HOST: db
+      PMA_HOST: v0s0408k4gsos8w0os4kwo80
       PMA_PORT: 3306
-      MYSQL_ROOT_PASSWORD: navi@123
-    depends_on:
-      - db
+      MYSQL_ROOT_PASSWORD: fP5OgBVmT3MDPQthaUddpinFnE4QM4WkcsuPKeUt2b2eyAYN9Omh4osqZJLleXoj
 
 volumes:
-  dbdata:
   static_volume:
   media_volume:
