@@ -15,7 +15,7 @@ services:
       DB_NAME: ottdata
       DB_USER: root
       DB_PASSWORD: fP5OgBVmT3MDPQthaUddpinFnE4QM4WkcsuPKeUt2b2eyAYN9Omh4osqZJLleXoj
-      DB_HOST: db  # Internal Docker service name for MySQL
+      DB_HOST: db
       DB_PORT: 3306
     depends_on:
       - db
@@ -27,23 +27,25 @@ services:
     environment:
       MYSQL_DATABASE: ottdata
       MYSQL_ROOT_PASSWORD: fP5OgBVmT3MDPQthaUddpinFnE4QM4WkcsuPKeUt2b2eyAYN9Omh4osqZJLleXoj
-    ports:
-      - "3306:3306"
     volumes:
       - dbdata:/var/lib/mysql
+    # Optional: expose only if external DB access is needed
+    # ports:
+    #   - "3306:3306"
 
   phpmyadmin:
     container_name: ott_phpmyadmin
-    image: phpmyadmin
+    image: phpmyadmin/phpmyadmin  # Use official phpMyAdmin image
     restart: always
     ports:
-      - "8081:80"  # Changed from 8080 to avoid port conflict
+      - "8081:80"
     environment:
-      PMA_HOST: db  # Internal Docker service name, not external domain
+      PMA_HOST: db
       PMA_PORT: 3306
       PMA_ARBITRARY: 1
       MYSQL_ROOT_PASSWORD: fP5OgBVmT3MDPQthaUddpinFnE4QM4WkcsuPKeUt2b2eyAYN9Omh4osqZJLleXoj
-      PMA_ABSOLUTE_URI: https://db.ottplatform.shijin.in  # External URL to access phpMyAdmin
+      # Optional: update if accessed via domain (or remove)
+      # PMA_ABSOLUTE_URI: https://phpmyadmin.ottplatform.shijin.in
     depends_on:
       - db
 
