@@ -23,7 +23,7 @@ services:
     image: phpmyadmin
     restart: always
     ports:
-      - "8080:80"  # Exposes phpMyAdmin to port 8080, internal to Docker
+      - "8081:80"  # Exposes phpMyAdmin to port 8080, internal to Docker
     environment:
       PMA_HOST: v0s0408k4gsos8w0os4kwo80  # Use internal hostname here
       PMA_PORT: 3306
