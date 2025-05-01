@@ -15,7 +15,7 @@ services:
       DB_NAME: ottdata
       DB_USER: root
       DB_PASSWORD: fP5OgBVmT3MDPQthaUddpinFnE4QM4WkcsuPKeUt2b2eyAYN9Omh4osqZJLleXoj
-      DB_HOST: db
+      DB_HOST: db.ottplatform.shijin.in  # <-- Updated to the external domain
       DB_PORT: 3306
     depends_on:
       - db
@@ -39,7 +39,7 @@ services:
     ports:
       - "8081:80"  # Changed from 8080 to avoid port conflict
     environment:
-      PMA_HOST: db
+      PMA_HOST: db.ottplatform.shijin.in  # <-- Use the external domain here
       PMA_PORT: 3306
       PMA_ARBITRARY: 1
       MYSQL_ROOT_PASSWORD: fP5OgBVmT3MDPQthaUddpinFnE4QM4WkcsuPKeUt2b2eyAYN9Omh4osqZJLleXoj
