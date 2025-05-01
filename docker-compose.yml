@@ -15,7 +15,7 @@ services:
       DB_NAME: default
       DB_USER: mysql
       DB_PASSWORD: fP5OgBVmT3MDPQthaUddpinFnE4QM4WkcsuPKeUt2b2eyAYN9Omh4osqZJLleXoj
-      DB_HOST: v0s0408k4gsos8w0os4kwo80  # Internal Coolify hostname
+      DB_HOST: v0s0408k4gsos8w0os4kwo80  # Ensure this is the correct internal Coolify hostname
       DB_PORT: 3306
 
   phpmyadmin:
@@ -25,7 +25,7 @@ services:
     ports:
       - "8080:80"  # Exposes phpMyAdmin to port 8080, internal to Docker
     environment:
-      PMA_HOST: v0s0408k4gsos8w0os4kwo80  # Internal Coolify hostname
+      PMA_HOST: v0s0408k4gsos8w0os4kwo80  # Use internal hostname here
       PMA_PORT: 3306
       MYSQL_ROOT_PASSWORD: fP5OgBVmT3MDPQthaUddpinFnE4QM4WkcsuPKeUt2b2eyAYN9Omh4osqZJLleXoj
     depends_on:
