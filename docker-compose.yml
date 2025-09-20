@@ -5,60 +5,105 @@ services:
   db:
     image: mysql:8.0
     container_name: ott_mysql
-    restart: always
+    restart: unless-stopped
     environment:
-      MYSQL_DATABASE: ottdata
-      MYSQL_USER: root
-      MYSQL_PASSWORD: fP5OgBVmT3MDPQthaUddpinFnE4QM4WkcsuPKeUt2b2eyAYN9Omh4osqZJLleXoj
-      MYSQL_ROOT_PASSWORD: fP5OgBVmT3MDPQthaUddpinFnE4QM4WkcsuPKeUt2b2eyAYN9Omh4osqZJLleXoj
+      MYSQL_DATABASE: ${DB_NAME:-ottdata}
+      MYSQL_USER: ${DB_USER:-root}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-secure-password}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-secure-password}
     ports:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
-      - mynetwork
+      - ott_network
+    command: --default-authentication-plugin=mysql_native_password
+
+  # Redis Service
+  redis:
+    image: redis:7-alpine
+    container_name: ott_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - ott_network
 
   # Web Service (Django app)
   web:
     build: .
     container_name: ott_web
-    command: python manage.py runserver 0.0.0.0:8000
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py collectstatic --noinput &&
+             gunicorn OTTPROJECT.wsgi:application --bind 0.0.0.0:8000 --workers 3"
     volumes:
       - .:/app
+      - media_volume:/app/media
+      - static_volume:/app/staticfiles
     ports:
       - "8000:8000"
     environment:
-      DB_NAME: ottdata
-      DB_USER: root
-      DB_PASSWORD: fP5OgBVmT3MDPQthaUddpinFnE4QM4WkcsuPKeUt2b2eyAYN9Omh4osqZJLleXoj
-      DB_HOST: db
-      DB_PORT: 3306
+      - SECRET_KEY=${SECRET_KEY:-django-insecure-change-this}
+      - DEBUG=${DEBUG:-False}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS:-localhost,127.0.0.1}
+      - DB_NAME=${DB_NAME:-ottdata}
+      - DB_USER=${DB_USER:-root}
+      - DB_PASSWORD=${DB_PASSWORD:-secure-password}
+      - DB_HOST=db
+      - DB_PORT=3306
+      - REDIS_URL=redis://redis:6379/1
+      - STRIPE_PUBLISHABLE_KEY=${STRIPE_PUBLISHABLE_KEY:-}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:-}
     depends_on:
       - db
+      - redis
     networks:
-      - mynetwork
+      - ott_network
+
+  # Nginx Service (Optional - for production)
+  nginx:
+    image: nginx:alpine
+    container_name: ott_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    depends_on:
+      - web
+    networks:
+      - ott_network
 
   # phpMyAdmin Service
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     container_name: ott_phpmyadmin
-    restart: always
+    restart: unless-stopped
     environment:
-      PMA_HOST: v0s0408k4gsos8w0os4kwo80
+      PMA_HOST: db
       PMA_PORT: 3306
-      PMA_USER: root
-      PMA_PASSWORD: fP5OgBVmT3MDPQthaUddpinFnE4QM4WkcsuPKeUt2b2eyAYN9Omh4osqZJLleXoj
+      PMA_USER: ${DB_USER:-root}
+      PMA_PASSWORD: ${DB_PASSWORD:-secure-password}
     ports:
-      - "8080:80"  # Can reverse proxy to https://db.ottplatform.shijin.in
+      - "8080:80"
     depends_on:
       - db
     networks:
-      - mynetwork
+      - ott_network
 
 volumes:
   mysql_data:
+  redis_data:
+  media_volume:
+  static_volume:
 
 networks:
-  mynetwork:
+  ott_network:
     driver: bridge
 

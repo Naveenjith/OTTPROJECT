@@ -1,42 +1,93 @@
-from django.shortcuts import render,redirect
-from.forms import customUserCreatonForm,SubscriptionForm,UserProfileForm
-from.models import UserProfile,Movie,Subscription
-from django.contrib.auth import login,authenticate,logout
-from django.contrib.auth.forms import AuthenticationForm,PasswordChangeForm
-from datetime import datetime,timedelta
-from django.http import JsonResponse
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponse, JsonResponse, StreamingHttpResponse, Http404
 from django.views import View
-#from rest_framework.views import APIView
-#from rest_framework.generics import RetrieveAPIView
-from django.db.models import Q
+from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
+from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from django.contrib import messages 
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib import messages 
+from django.db.models import Q, Avg, Count, Sum
+from django.core.paginator import Paginator
+from django.utils import timezone
+from django.views.decorators.cache import cache_page
+from django.views.decorators.vary import vary_on_headers
+from rest_framework import viewsets, status
+from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.views import APIView
+import logging
+import os
+import mimetypes
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
+
+from .forms import (
+    CustomUserCreationForm, SubscriptionForm, UserProfileForm, 
+    MovieForm, MovieRatingForm, SearchForm
+)
+from .models import (
+    UserProfile, Movie, Subscription, Genre, Watchlist, 
+    MovieRating, UserActivity
+)
+from .serializers import (
+    MovieSerializer, MovieListSerializer, MovieDetailSerializer,
+    UserSerializer, UserProfileSerializer, SubscriptionSerializer,
+    WatchlistSerializer, MovieRatingSerializer, UserActivitySerializer
+)
+
+logger = logging.getLogger(__name__)
 
 # Create your views here.
 class SignupView(View):
     template_name = 'signup.html'
 
     def get(self, request):
-        form = customUserCreatonForm()
+        form = CustomUserCreationForm()
         return render(request, self.template_name, {'form': form})
 
     def post(self, request):
-        form = customUserCreatonForm(request.POST)
+        form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            email = form.cleaned_data['email']
-            phone_number = form.cleaned_data['phone_number']
-            user = form.save()
-            UserProfile.objects.create(user=user, email=email, phone_number=phone_number)
-            login(request, user)
-            return redirect('signin')
+            try:
+                email = form.cleaned_data['email']
+                phone_number = form.cleaned_data['phone_number']
+                user = form.save()
+            
+                UserProfile.objects.create(
+                    user=user,
+                    email=email,
+                    phone_number=phone_number
+                )
+
+            # Log user activity
+                UserActivity.objects.create(
+                    user=user,
+                    activity_type='profile_update',
+                    description='User account created',
+                    ip_address=request.META.get('REMOTE_ADDR'),
+                    user_agent=request.META.get('HTTP_USER_AGENT', '')
+                )
+
+                login(request, user)
+                messages.success(request, 'Account created successfully!')
+                return redirect('index')
+
+            except Exception as e:
+                logger.error(f"Error creating user: {e}")
+                messages.error(request, 'An error occurred while creating your account.')
         else:
-            return render(request, self.template_name, {'form': form})
+            messages.error(request, 'Please correct the errors below.')
+    
+        return render(request, self.template_name, {'form': form})
 
 class SigninView(View):
     template_name = 'signin.html'
 
     def get(self, request):
+        if request.user.is_authenticated:
+            return redirect('index')
         form = AuthenticationForm()
         return render(request, self.template_name, {'form': form})
 
@@ -46,10 +97,26 @@ class SigninView(View):
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
             user = authenticate(request, username=username, password=password)
-            request.session['username'] = username
+            
             if user is not None:
                 login(request, user)
+                
+                # Log user activity
+                UserActivity.objects.create(
+                    user=user,
+                    activity_type='login',
+                    description='User logged in',
+                    ip_address=request.META.get('REMOTE_ADDR'),
+                    user_agent=request.META.get('HTTP_USER_AGENT', '')
+                )
+                
+                messages.success(request, f'Welcome back, {user.username}!')
                 return redirect("index")
+            else:
+                messages.error(request, 'Invalid username or password.')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+        
         return render(request, self.template_name, {'form': form})
 
 class SignoutView(View):
@@ -81,14 +148,307 @@ class IndexView(View):
         else:
             return redirect('signin')
 
-class MovieListView(LoginRequiredMixin,View):
+class MovieListView(LoginRequiredMixin, View):
     template_name = 'movies_list.html'
     login_url = '/signin/'  
 
+    @method_decorator(cache_page(60 * 15))  # cache GET requests for 15 min
+    def get(self, request, *args, **kwargs):
+        try:
+            # Get query parameters
+            search_query = request.GET.get('search', '')
+            language = request.GET.get('language', '')
+            genre = request.GET.get('genre', '')
+            featured = request.GET.get('featured', '')
+            trending = request.GET.get('trending', '')
+            
+            # Start with all movies
+            movies = Movie.objects.all()
+
+            # Apply filters
+            if search_query:
+                movies = movies.filter(
+                    Q(title__icontains=search_query) |
+                    Q(description__icontains=search_query) |
+                    Q(director__icontains=search_query) |
+                    Q(cast__icontains=search_query)
+                )
+            
+            if language:
+                movies = movies.filter(language=language)
+            
+            if genre:
+                movies = movies.filter(genre__name=genre)
+            
+            if featured == 'true':
+                movies = movies.filter(is_featured=True)
+            
+            if trending == 'true':
+                movies = movies.filter(is_trending=True)
+            
+            # Order by creation date
+            movies = movies.order_by('-created_at')
+            
+            # Pagination
+            paginator = Paginator(movies, 12)  # 12 movies per page
+            page_number = request.GET.get('page')
+            page_obj = paginator.get_page(page_number)
+            
+            # Get genres for filter dropdown
+            genres = Genre.objects.all()
+            
+            context = {
+                'movies': page_obj,
+                'genres': genres,
+                'search_query': search_query,
+                'selected_language': language,
+                'selected_genre': genre,
+                'featured': featured,
+                'trending': trending,
+            }
+            
+            return render(request, self.template_name, context)
+            
+        except Exception as e:
+            logger.error(f"Error in MovieListView: {e}")
+            messages.error(request, 'An error occurred while loading movies.')
+            return render(request, self.template_name, {'movies': []})
+
+
+def stream_video(request, movie_id):
+    """Stream video file for better performance"""
+    try:
+        movie = get_object_or_404(Movie, id=movie_id)
+        
+        # Check if user has active subscription
+        if not request.user.is_authenticated:
+            raise Http404("Authentication required")
+        
+        # Check subscription status
+        try:
+            subscription = Subscription.objects.get(user=request.user)
+            if not subscription.is_subscription_active():
+                raise Http404("Active subscription required")
+        except Subscription.DoesNotExist:
+            raise Http404("Subscription required")
+        
+        # Increment view count
+        movie.view_count += 1
+        movie.save()
+        
+        # Log user activity
+        UserActivity.objects.create(
+            user=request.user,
+            activity_type='movie_view',
+            description=f'Viewed movie: {movie.title}',
+            movie=movie,
+            ip_address=request.META.get('REMOTE_ADDR'),
+            user_agent=request.META.get('HTTP_USER_AGENT', '')
+        )
+        
+        # Get file path
+        file_path = movie.video.path
+        
+        if not os.path.exists(file_path):
+            raise Http404("Video file not found")
+        
+        # Get file size
+        file_size = os.path.getsize(file_path)
+        
+        # Get range header for partial content
+        range_header = request.META.get('HTTP_RANGE', '').strip()
+        range_match = range_header.match(r'bytes=(\d*)-(\d*)')
+        
+        if range_match:
+            first_byte, last_byte = range_match.groups()
+            first_byte = int(first_byte) if first_byte else 0
+            last_byte = int(last_byte) if last_byte else file_size - 1
+            
+            if first_byte >= file_size:
+                return HttpResponse(status=416)
+            
+            length = last_byte - first_byte + 1
+            response = StreamingHttpResponse(
+                file_generator(file_path, first_byte, length),
+                status=206
+            )
+            response['Content-Range'] = f'bytes {first_byte}-{last_byte}/{file_size}'
+            response['Accept-Ranges'] = 'bytes'
+            response['Content-Length'] = str(length)
+        else:
+            response = StreamingHttpResponse(
+                file_generator(file_path),
+                status=200
+            )
+            response['Content-Length'] = str(file_size)
+        
+        # Set content type
+        content_type, _ = mimetypes.guess_type(file_path)
+        response['Content-Type'] = content_type or 'video/mp4'
+        
+        return response
+        
+    except Exception as e:
+        logger.error(f"Error streaming video {movie_id}: {e}")
+        raise Http404("Error streaming video")
+
+
+def file_generator(file_path, start=0, length=None):
+    """Generator function to stream file in chunks"""
+    with open(file_path, 'rb') as f:
+        f.seek(start)
+        remaining = length
+        while True:
+            if remaining:
+                chunk_size = min(8192, remaining)
+                remaining -= chunk_size
+            else:
+                chunk_size = 8192
+            
+            chunk = f.read(chunk_size)
+            if not chunk:
+                break
+            yield chunk
+
+
+# API Viewsets
+class MovieViewSet(viewsets.ReadOnlyModelViewSet):
+    """API viewset for movies"""
+    queryset = Movie.objects.all()
+    serializer_class = MovieSerializer
+    permission_classes = [IsAuthenticated]
     
-    def get(self, request):
-        movies = Movie.objects.all()
-        return render(request, self.template_name, {'movies': movies})
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return MovieListSerializer
+        elif self.action == 'retrieve':
+            return MovieDetailSerializer
+        return MovieSerializer
+    
+    @action(detail=False, methods=['get'])
+    def search(self, request):
+        """Search movies by title, description, director, or cast"""
+        query = request.query_params.get('q', '')
+        if query:
+            movies = self.queryset.filter(
+                Q(title__icontains=query) |
+                Q(description__icontains=query) |
+                Q(director__icontains=query) |
+                Q(cast__icontains=query)
+            )
+        else:
+            movies = self.queryset.none()
+        
+        serializer = self.get_serializer(movies, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'])
+    def featured(self, request):
+        """Get featured movies"""
+        movies = self.queryset.filter(is_featured=True)
+        serializer = self.get_serializer(movies, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'])
+    def trending(self, request):
+        """Get trending movies"""
+        movies = self.queryset.filter(is_trending=True)
+        serializer = self.get_serializer(movies, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=True, methods=['post'])
+    def rate(self, request, pk=None):
+        """Rate a movie"""
+        movie = self.get_object()
+        rating = request.data.get('rating')
+        review = request.data.get('review', '')
+        
+        if not rating or not (1 <= float(rating) <= 10):
+            return Response(
+                {'error': 'Rating must be between 1 and 10'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        rating_obj, created = MovieRating.objects.get_or_create(
+            user=request.user,
+            movie=movie,
+            defaults={'rating': rating, 'review': review}
+        )
+        
+        if not created:
+            rating_obj.rating = rating
+            rating_obj.review = review
+            rating_obj.save()
+        
+        serializer = MovieRatingSerializer(rating_obj)
+        return Response(serializer.data)
+    
+    @action(detail=True, methods=['post'])
+    def add_to_watchlist(self, request, pk=None):
+        """Add movie to user's watchlist"""
+        movie = self.get_object()
+        watchlist, created = Watchlist.objects.get_or_create(
+            user=request.user,
+            movie=movie
+        )
+        
+        if created:
+            return Response({'message': 'Added to watchlist'}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({'message': 'Already in watchlist'}, status=status.HTTP_200_OK)
+    
+    @action(detail=True, methods=['delete'])
+    def remove_from_watchlist(self, request, pk=None):
+        """Remove movie from user's watchlist"""
+        movie = self.get_object()
+        try:
+            watchlist = Watchlist.objects.get(user=request.user, movie=movie)
+            watchlist.delete()
+            return Response({'message': 'Removed from watchlist'}, status=status.HTTP_200_OK)
+        except Watchlist.DoesNotExist:
+            return Response({'error': 'Not in watchlist'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
+    """API viewset for users"""
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+    
+    @action(detail=False, methods=['get'])
+    def me(self, request):
+        """Get current user's profile"""
+        serializer = self.get_serializer(request.user)
+        return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'])
+    def watchlist(self, request):
+        """Get user's watchlist"""
+        watchlist = Watchlist.objects.filter(user=request.user)
+        serializer = WatchlistSerializer(watchlist, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'])
+    def activity(self, request):
+        """Get user's activity"""
+        activity = UserActivity.objects.filter(user=request.user)[:50]
+        serializer = UserActivitySerializer(activity, many=True)
+        return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def movie_statistics(request):
+    """Get movie statistics"""
+    stats = {
+        'total_movies': Movie.objects.count(),
+        'featured_movies': Movie.objects.filter(is_featured=True).count(),
+        'trending_movies': Movie.objects.filter(is_trending=True).count(),
+        'total_views': Movie.objects.aggregate(total=Sum('view_count'))['total'] or 0,
+        'average_rating': Movie.objects.aggregate(avg=Avg('rating'))['avg'] or 0,
+        'movies_by_language': dict(Movie.objects.values('language').annotate(count=Count('id')).values_list('language', 'count')),
+    }
+    return Response(stats)
 
 
 

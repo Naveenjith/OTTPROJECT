@@ -1,0 +1,34 @@
+# Copy this file to .env and update with your actual values
+
+# Django Settings
+SECRET_KEY=your-super-secret-key-change-this-in-production
+DEBUG=True
+ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0
+
+# Database Settings
+DB_NAME=ottdata
+DB_USER=root
+DB_PASSWORD=secure-password-change-this
+DB_HOST=localhost
+DB_PORT=3306
+
+# Stripe Settings (Add your actual keys)
+STRIPE_PUBLISHABLE_KEY=pk_test_your_publishable_key_here
+STRIPE_SECRET_KEY=sk_test_your_secret_key_here
+
+# Redis Settings
+REDIS_URL=redis://localhost:6379/1
+
+# Email Settings (Optional)
+EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USE_TLS=True
+EMAIL_HOST_USER=your-email@gmail.com
+EMAIL_HOST_PASSWORD=your-app-password
+
+# Security Settings
+SECURE_SSL_REDIRECT=False
+SECURE_HSTS_SECONDS=0
+SECURE_HSTS_INCLUDE_SUBDOMAINS=False
+SECURE_HSTS_PRELOAD=False
